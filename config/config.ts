@@ -1,0 +1,1 @@
+export const globalWait = 10000
