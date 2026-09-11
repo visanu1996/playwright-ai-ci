@@ -28,7 +28,7 @@ export class DriverFactory {
     }
 
     this.browser = await chromium.launch({
-      headless: this.options.headless ?? false,
+      headless: this.options.headless ?? !!process.env.CI,
       args: ['--start-maximized'],
       ...this.options.launchOptions,
     });
