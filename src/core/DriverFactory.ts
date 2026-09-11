@@ -20,10 +20,10 @@ export class DriverFactory {
   public page?: Page;
   public readonly pages: Record<string, Page> = {};
 
-  public constructor(private readonly options: DriverFactoryOptions = {}) {}
+  public constructor(private readonly options: DriverFactoryOptions = {}) { }
 
   public async start(): Promise<this> {
-    if (this.browser && this.context && this.page) {
+    if (this.browser && this.context) {
       return this;
     }
 
@@ -33,13 +33,11 @@ export class DriverFactory {
     });
 
     this.context = await this.browser.newContext(this.options.contextOptions);
-    this.page = await this.context.newPage();
-    this.pages.main = this.page;
 
     return this;
   }
 
-  public async createPage(name: string): Promise<Page> {
+  public async createPage(name: string, url: string): Promise<Page> {
     if (!this.context) {
       throw new Error('DriverFactory must be started before creating a page.');
     }
@@ -49,6 +47,8 @@ export class DriverFactory {
     }
 
     const page = await this.context.newPage();
+    await page.goto(url);
+    this.page = page;
     this.pages[name] = page;
 
     return page;
@@ -57,10 +57,10 @@ export class DriverFactory {
   public async close(): Promise<void> {
     await this.context?.close();
     await this.browser?.close();
-    
-    // this.page = undefined;
-    // Object.keys(this.pages).forEach((name) => delete this.pages[name]);
-    // this.context = undefined;
-    // this.browser = undefined;
+
+    this.page = undefined;
+    Object.keys(this.pages).forEach((name) => delete this.pages[name]);
+    this.context = undefined;
+    this.browser = undefined;
   }
 }
