@@ -28,11 +28,15 @@ export class DriverFactory {
     }
 
     this.browser = await chromium.launch({
-      headless: this.options.headless ?? true,
+      headless: this.options.headless ?? false,
+      args: ['--start-maximized'],
       ...this.options.launchOptions,
     });
 
-    this.context = await this.browser.newContext(this.options.contextOptions);
+    this.context = await this.browser.newContext({
+      viewport: null,
+      ...this.options.contextOptions,
+    });
 
     return this;
   }
